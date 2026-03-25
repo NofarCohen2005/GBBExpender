@@ -1,0 +1,247 @@
+:root {
+  --primary-descriptor: #3b82f6;
+  --primary-message: #a855f7;
+  --bg: #030711;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --success: #22c55e;
+  --danger: #ef4444;
+}
+
+body {
+  margin: 0;
+  font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+  color: var(--text);
+  line-height: 1.5;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  /* Lock the body scroll */
+}
+
+#root {
+  height: 100%;
+}
+
+.container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+}
+
+
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+/* Form Styles */
+.generator-form {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  height: 70vh;
+  transition: border-color 0.4s ease;
+}
+
+.generator-form.descriptor {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.generator-form.message {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+.form-group.props-manager {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.properties-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.75rem;
+  margin: 0.5rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.properties-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.properties-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+input,
+select {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+}
+
+.toggle-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.toggle-group button {
+  flex: 1;
+  padding: 0.6rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 0.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.toggle-group button.active.descriptor {
+  background: var(--primary-descriptor);
+  color: white;
+}
+
+.toggle-group button.active.message {
+  background: var(--primary-message);
+  color: white;
+}
+
+.property-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px 36px;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.1rem;
+}
+
+.btn-add {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  padding: 0.75rem;
+  width: 100%;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.btn-add:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-style: solid;
+  color: var(--text);
+}
+
+.btn-remove {
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  color: var(--danger);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.btn-submit.descriptor {
+  background: var(--primary-descriptor);
+  color: white;
+}
+
+.btn-submit.message {
+  background: var(--primary-message);
+  color: white;
+}
+
+.animate-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bg-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
