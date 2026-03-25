@@ -36,14 +36,21 @@ const GeneratorForm: React.FC<GeneratorFormProps> = ({ className }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        const capitalize = (s: string) => s.trim() ? s.trim()[0].toUpperCase() + s.trim().slice(1) : s;
+        const capitalizedObjectName = capitalize(objectName);
+        const capitalizedProperties = properties.map(p => ({
+            ...p,
+            name: capitalize(p.name)
+        }));
+
         try {
             const response = await fetch('http://localhost:5050/api/gbb/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     entryType,
-                    objectName,
-                    properties
+                    objectName: capitalizedObjectName,
+                    properties: capitalizedProperties
                 })
             });
             const data = await response.json();

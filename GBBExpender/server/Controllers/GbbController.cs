@@ -30,12 +30,13 @@ namespace GbbExpender.Controllers
                 return BadRequest("Invalid request");
 
             request.ObjectName = Capitalize(request.ObjectName);
+            request.EntryType = Capitalize(request.EntryType); // Ensure "message" -> "Message" for consistency
             foreach (var prop in request.Properties)
             {
                 prop.Name = Capitalize(prop.Name);
             }
 
-            var isMsg = request.EntryType == "Message";
+            var isMsg = string.Equals(request.EntryType, "Message", System.StringComparison.OrdinalIgnoreCase);
             var root = "/Users/nofar/Desktop/gbbexpender";
 
             return Ok(new
@@ -69,7 +70,12 @@ namespace GbbExpender.Controllers
             });
         }
 
-        private string Capitalize(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1);
+        private string Capitalize(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return s;
+            s = s.Trim();
+            return char.ToUpper(s[0]) + (s.Length > 1 ? s.Substring(1) : "");
+        }
 
         private string MapCppType(string type)
         {
