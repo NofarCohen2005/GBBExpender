@@ -23,6 +23,12 @@ desktop.ini
 *.user
 *.userosscache
 *.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.dbmdl
+*.jfm
 .vs/
 .vscode/
 .idea/
@@ -30,8 +36,13 @@ desktop.ini
 # GBB Expender specific
 **/Extended_GBB/
 **/HartechExtension_CS/
-# Actually, if these are part of the output/generated code, they should probably be ignored if they are not meant to be committed. 
-# But let's stick to standard ones first.
 
 # Logs
 *.log
+logs/
+publish/
+
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
