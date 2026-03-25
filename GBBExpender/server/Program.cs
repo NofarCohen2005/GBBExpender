@@ -5,6 +5,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register GBB Services
+builder.Services.AddScoped<GbbExpender.Services.GbbGeneratorService>();
+
 // Enable CORS
 builder.Services.AddCors(options =>
 {

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/nofar/Desktop/gbbexpender/GBBGenerator/server/GbbServer.csproj": {}
+    "/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/GbbServer.csproj": {}
   },
   "projects": {
-    "/Users/nofar/Desktop/gbbexpender/GBBGenerator/server/GbbServer.csproj": {
+    "/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/GbbServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/nofar/Desktop/gbbexpender/GBBGenerator/server/GbbServer.csproj",
+        "projectUniqueName": "/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/GbbServer.csproj",
         "projectName": "GbbServer",
-        "projectPath": "/Users/nofar/Desktop/gbbexpender/GBBGenerator/server/GbbServer.csproj",
+        "projectPath": "/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/GbbServer.csproj",
         "packagesPath": "/Users/nofar/.nuget/packages/",
-        "outputPath": "/Users/nofar/Desktop/gbbexpender/GBBGenerator/server/obj/",
+        "outputPath": "/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/nofar/.nuget/NuGet/NuGet.Config"
@@ -52,6 +52,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[10.0.5, )"
             }
           },
           "imports": [

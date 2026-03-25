@@ -1,188 +1,143 @@
 import React, { useState } from 'react';
+import PropertyRow from './components/PropertyRow';
+import type { Property, EntryType, GeneratorRequest } from './types';
 
-export const DATA_TYPES = ['int', 'uint', 'double', 'bool', 'byte', 'string'] as const;
-export type DataType = typeof DATA_TYPES[number];
+const GeneratorForm: React.FC = () => {
+  const [entryType, setEntryType] = useState<EntryType>('Descriptor');
+  const [objectName, setObjectName] = useState('');
+  const [properties, setProperties] = useState<Property[]>([{ name: '', dataType: 'int', defaultValue: '0' }]);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
 
-export interface Property {
-    name: string;
-    dataType: DataType;
-    defaultValue: string;
-}
+  const handleUpdateProperty = (index: number, field: keyof Property, value: string) => {
+    const updated = [...properties];
+    updated[index][field] = value;
+    setProperties(updated);
+  };
 
-interface GeneratorFormProps {
-    className?: string;
-}
+  const handleAddField = () => {
+    setProperties([...properties, { name: '', dataType: 'int', defaultValue: '0' }]);
+  };
 
-const GeneratorForm: React.FC<GeneratorFormProps> = ({ className }) => {
-    const [entryType, setEntryType] = useState<'Descriptor' | 'Message'>('Descriptor');
-    const [objectName, setObjectName] = useState('');
-    const [properties, setProperties] = useState<Property[]>([{ name: '', dataType: 'int', defaultValue: '0' }]);
-    const [loading, setLoading] = useState(false);
+  const handleRemoveField = (index: number) => {
+    if (properties.length > 1) {
+      setProperties(properties.filter((_, i) => i !== index));
+    }
+  };
 
-    const addProperty = () => {
-        setProperties([...properties, { name: '', dataType: 'int', defaultValue: '0' }]);
+  const handleGenerate = async () => {
+    // Validation
+    if (!objectName.trim()) {
+      setResult({ status: 'Error', message: 'Object Name is required' });
+      return;
+    }
+
+    if (properties.length === 0) {
+      setResult({ status: 'Error', message: 'At least one property is required' });
+      return;
+    }
+
+    const hasEmptyName = properties.some(p => !p.name.trim());
+    if (hasEmptyName) {
+      setResult({ status: 'Error', message: 'All properties must have a name' });
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+
+    const payload: GeneratorRequest = {
+      entryType,
+      objectName,
+      properties,
     };
 
-    const removeProperty = (index: number) => {
-        setProperties(properties.filter((_, i) => i !== index));
-    };
+    try {
+      const resp = await fetch('http://localhost:5050/api/gbb/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const updateProperty = (index: number, field: keyof Property, value: string) => {
-        const newProperties = [...properties];
-        (newProperties[index] as any)[field] = value;
-        setProperties(newProperties);
-    };
+      const data = await resp.json();
+      setResult(data);
+      console.log('Generated code:', data);
+    } catch (err) {
+      console.error('Generation failed:', err);
+      setResult({ status: 'Error', message: 'Failed to connect to server' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        const capitalize = (s: string) => s.trim() ? s.trim()[0].toUpperCase() + s.trim().slice(1) : s;
-        const capitalizedObjectName = capitalize(objectName);
-        const capitalizedProperties = properties.map(p => ({
-            ...p,
-            name: capitalize(p.name)
-        }));
+  return (
+    <div className="luxury-card">
+      <div className="generator-header">
+        <h1>GBB Generator</h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          Automated Code Registration System
+        </p>
+      </div>
 
-        try {
-            const response = await fetch('http://localhost:5050/api/gbb/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    entryType,
-                    objectName: capitalizedObjectName,
-                    properties: capitalizedProperties
-                })
-            });
-            const data = await response.json();
-            console.log('Generated code:', data);
-            alert('Code generated successfully! Check console for details.');
-        } catch (error) {
-            console.error('Error generating code:', error);
-            alert('Failed to generate code. Is the backend running?');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className={`generator-form ${entryType.toLowerCase()} ${className || ''}`}>
-            <EntryTypeToggle entryType={entryType} setEntryType={setEntryType} />
-            
-            <div className="form-group">
-                <label>Object Name</label>
-                <input
-                    type="text"
-                    value={objectName}
-                    onChange={(e) => setObjectName(e.target.value)}
-                    placeholder="e.g. HealthData"
-                    className="main-input"
-                    required
-                />
-            </div>
-
-            <PropertiesManager 
-                properties={properties} 
-                updateProperty={updateProperty} 
-                removeProperty={removeProperty} 
-                addProperty={addProperty} 
-            />
-
-            <button type="submit" className={`btn-submit ${entryType.toLowerCase()}`} disabled={loading}>
-                {loading ? 'Processing...' : `Generate ${entryType}`}
-            </button>
-        </form>
-    );
-};
-
-interface EntryTypeToggleProps {
-    entryType: 'Descriptor' | 'Message';
-    setEntryType: (type: 'Descriptor' | 'Message') => void;
-}
-
-const EntryTypeToggle: React.FC<EntryTypeToggleProps> = ({ entryType, setEntryType }) => (
-    <div className="form-group">
-        <label>Entry Type</label>
-        <div className="toggle-group">
-            <button
-                type="button"
-                className={entryType === 'Descriptor' ? 'active descriptor' : 'inactive'}
-                onClick={() => setEntryType('Descriptor')}
-            >
-                <span className="icon">📄</span> Descriptor
-            </button>
-            <button
-                type="button"
-                className={entryType === 'Message' ? 'active message' : 'inactive'}
-                onClick={() => setEntryType('Message')}
-            >
-                <span className="icon">✉️</span> Message
-            </button>
-        </div>
-    </div>
-);
-
-interface PropertiesManagerProps {
-    properties: Property[];
-    updateProperty: (index: number, field: keyof Property, value: string) => void;
-    removeProperty: (index: number) => void;
-    addProperty: () => void;
-}
-
-const PropertiesManager: React.FC<PropertiesManagerProps> = ({ properties, updateProperty, removeProperty, addProperty }) => (
-    <div className="form-group props-manager">
-        <label>Properties (Fields)</label>
-        <div className="properties-container">
-            {properties.map((prop, index) => (
-                <PropertyRow 
-                    key={index} 
-                    prop={prop} 
-                    index={index} 
-                    showRemove={properties.length > 1}
-                    onUpdate={updateProperty} 
-                    onRemove={removeProperty} 
-                />
-            ))}
-        </div>
-        <button type="button" className="btn-add" onClick={addProperty}>
-            <span>+</span> Add New Field
-        </button>
-    </div>
-);
-
-interface PropertyRowProps {
-    prop: Property;
-    index: number;
-    showRemove: boolean;
-    onUpdate: (index: number, field: keyof Property, value: string) => void;
-    onRemove: (index: number) => void;
-}
-
-const PropertyRow: React.FC<PropertyRowProps> = ({ prop, index, showRemove, onUpdate, onRemove }) => (
-    <div className="property-row animate-in">
-        <input
-            type="text"
-            placeholder="Name"
-            value={prop.name}
-            onChange={(e) => onUpdate(index, 'name', e.target.value)}
-            required
-        />
-        <select
-            value={prop.dataType}
-            onChange={(e) => onUpdate(index, 'dataType', e.target.value as DataType)}
+      <div className="toggle-group">
+        <button 
+          className={`toggle-btn ${entryType === 'Descriptor' ? 'active' : ''}`}
+          onClick={() => setEntryType('Descriptor')}
         >
-            {DATA_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-        </select>
-        <input
-            type="text"
-            placeholder="Default"
-            value={prop.defaultValue}
-            onChange={(e) => onUpdate(index, 'defaultValue', e.target.value)}
-            required
+          Descriptor
+        </button>
+        <button 
+          className={`toggle-btn ${entryType === 'Message' ? 'active' : ''}`}
+          onClick={() => setEntryType('Message')}
+        >
+          Message
+        </button>
+      </div>
+
+      <div className="form-group">
+        <label>Object Name</label>
+        <input 
+          type="text" 
+          placeholder={`Enter name (e.g. My${entryType})`}
+          value={objectName}
+          onChange={(e) => setObjectName(e.target.value)}
         />
-        {showRemove && (
-            <button type="button" className="btn-remove" onClick={() => onRemove(index)} title="Remove Field">×</button>
-        )}
+      </div>
+
+      <div className="properties-section">
+        <label>Fields & Properties</label>
+        <div className="properties-list">
+          {properties.map((prop, index) => (
+            <PropertyRow 
+              key={index}
+              property={prop}
+              index={index}
+              onUpdate={handleUpdateProperty}
+              onRemove={handleRemoveField}
+              showRemove={properties.length > 1}
+            />
+          ))}
+        </div>
+        <button type="button" className="add-btn" onClick={handleAddField}>
+          + Add New Field
+        </button>
+      </div>
+
+      <button 
+        className="generate-btn" 
+        onClick={handleGenerate}
+        disabled={loading || !objectName}
+      >
+        {loading ? 'Processing...' : `Generate ${entryType}`}
+      </button>
+
+      {result && (
+        <div className={`result-message ${result.status?.toLowerCase()}`}>
+          {result.message}
+        </div>
+      )}
     </div>
-);
+  );
+};
 
 export default GeneratorForm;
