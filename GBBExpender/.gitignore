@@ -1,0 +1,37 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node.js
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/client/build/
+**/client/dist/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# .NET / C#
+**/bin/
+**/obj/
+**/out/
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+
+# GBB Expender specific
+**/Extended_GBB/
+**/HartechExtension_CS/
+# Actually, if these are part of the output/generated code, they should probably be ignored if they are not meant to be committed. 
+# But let's stick to standard ones first.
+
+# Logs
+*.log
