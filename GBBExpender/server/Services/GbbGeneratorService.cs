@@ -55,6 +55,9 @@ namespace GbbExpender.Services
             UpdateCSharpAgent(csAgentPath, request.ObjectName, isMsg);
         }
 
+        /// <summary>
+        /// Saves a string content to a file, creating the directory if it doesn't exist.
+        /// </summary>
         private void SaveFile(string path, string content)
         {
             var dir = Path.GetDirectoryName(path);
@@ -62,18 +65,38 @@ namespace GbbExpender.Services
             File.WriteAllText(path, content);
         }
 
+        /// <summary>
+        /// Updates the C++ Monitor header file with a new include and the monitor class definition.
+        /// Includes are placed after the last existing include in the same folder (Descriptors/Messages).
+        /// </summary>
         private void UpdateMonitor(string path, string objectName, string classCode, bool isMsg)
         {
             if (!File.Exists(path)) return;
-            var content = File.ReadAllText(path);
+            var lines = File.ReadAllLines(path).ToList();
             var includeLine = $"#include \"{(isMsg ? "Messages" : "Descriptors")}/{objectName}.h\"";
             
-            if (!content.Contains(includeLine)) content = includeLine + "\n" + content;
-            if (!content.Contains($"class Monitor{objectName}")) content += "\n" + classCode;
+            // 1. Maintain grouped includes
+            if (!lines.Any(l => l.Contains(includeLine)))
+            {
+                var prefix = $"#include \"{(isMsg ? "Messages" : "Descriptors")}/";
+                var lastIndex = lines.FindLastIndex(l => l.Trim().StartsWith(prefix));
+                if (lastIndex != -1) lines.Insert(lastIndex + 1, includeLine);
+                else lines.Insert(0, includeLine);
+            }
+
+            // 2. Append monitor class definition
+            if (!lines.Any(l => l.Contains($"class Monitor{objectName}")))
+            {
+                lines.Add(classCode);
+            }
             
-            File.WriteAllText(path, content);
+            File.WriteAllLines(path, lines);
         }
 
+        /// <summary>
+        /// Updates enum definitions in both C++ and C# files.
+        /// It finds the correct enum section and increments the ID based on the highest existing value.
+        /// </summary>
         private void UpdateEnumFile(string path, string objectName, string enumName, string baseConst, bool addSummary)
         {
             if (!File.Exists(path)) return;
@@ -107,25 +130,53 @@ namespace GbbExpender.Services
             File.WriteAllLines(path, lines);
         }
 
+        /// <summary>
+        /// Updates the C++ DLL registration file with the new descriptor/message.
+        /// Macros are added after the last existing macro of the same type (ADD_DESC1 or ADD_MESSAGE).
+        /// </summary>
         private void UpdateCppRegistration(string path, string objectName, bool isMsg)
         {
             if (!File.Exists(path)) return;
             var lines = File.ReadAllLines(path).ToList();
             var includeLine = $"#include \"{(isMsg ? "Messages" : "Descriptors")}/{objectName}.h\"";
             
+            // 1. Automated Include Placement - Ensures imports are grouped by folder
             if (!lines.Any(l => l.Contains(includeLine)))
             {
-                var lastInclude = lines.FindLastIndex(l => l.StartsWith("#include"));
-                lines.Insert(lastInclude + 1, includeLine);
+                var prefix = $"#include \"{(isMsg ? "Messages" : "Descriptors")}/";
+                var lastIndex = lines.FindLastIndex(l => l.Trim().StartsWith(prefix));
+                if (lastIndex != -1) 
+                {
+                    lines.Insert(lastIndex + 1, includeLine); // Insert after last include in the same folder
+                }
+                else 
+                {
+                    var lastInclude = lines.FindLastIndex(l => l.StartsWith("#include"));
+                    lines.Insert(lastInclude + 1, includeLine); // Fallback to last generic include
+                }
             }
 
+            // 2. Automated Macro Placement - Ensures ADD_DESC1 and ADD_MESSAGE are grouped together
             if (!lines.Any(l => l.Contains(objectName) && (l.Contains("ADD_DESC1") || l.Contains("ADD_MESSAGE"))))
             {
-                var constructorEnd = lines.FindLastIndex(l => l.Trim() == "}");
-                if (constructorEnd != -1)
+                var macroPrefix = isMsg ? "ADD_MESSAGE" : "ADD_DESC1";
+                var regCode = isMsg ? $"    ADD_MESSAGE(\"{objectName}\", {objectName}, {objectName});" : $"    ADD_DESC1({objectName});";
+                
+                // Find the last occurrence of the same macro type to maintain grouping
+                var lastMacroIndex = lines.FindLastIndex(l => l.Trim().StartsWith(macroPrefix));
+                
+                if (lastMacroIndex != -1)
                 {
-                    var regCode = isMsg ? $"    ADD_MESSAGE(\"{objectName}\", {objectName}, {objectName});" : $"    ADD_DESC1({objectName});";
-                    lines.Insert(constructorEnd, regCode);
+                    lines.Insert(lastMacroIndex + 1, regCode);
+                }
+                else
+                {
+                    // Fallback to the end of the constructor if this is the first of its kind
+                    var constructorEnd = lines.FindLastIndex(l => l.Trim() == "}");
+                    if (constructorEnd != -1)
+                    {
+                        lines.Insert(constructorEnd, regCode);
+                    }
                 }
             }
             File.WriteAllLines(path, lines);
@@ -162,35 +213,57 @@ namespace GbbExpender.Services
                 sb.AppendLine("#include \"AppObjectDefs.h\"");
                 sb.AppendLine("#include \"Inc/AppObjectDefs.h\"");
             }
-            else sb.AppendLine("#include <string.h>");
+            else
+            {
+                sb.AppendLine("#include <climits>");
+                sb.AppendLine("#include <string.h>");
+            }
             
             sb.AppendLine("\nnamespace HT {");
             sb.AppendLine($"    struct {request.ObjectName} {{");
             foreach (var prop in request.Properties)
             {
+                var pascalName = ToPascalCase(prop.Name);
                 var type = prop.DataType.ToLower() == "string" ? "char" : MapCppType(prop.DataType);
                 var suffix = prop.DataType.ToLower() == "string" ? "[256]" : "";
-                sb.AppendLine($"        {type} {prop.Name}{suffix};");
+                sb.AppendLine($"        {type} {pascalName}{suffix};");
             }
             
-            sb.AppendLine($"\n        {request.ObjectName}()");
+            sb.AppendLine($"\n        {request.ObjectName}(): ");
             var podProps = request.Properties.Where(p => p.DataType.ToLower() != "string").ToList();
+            var stringProps = request.Properties.Where(p => p.DataType.ToLower() == "string").ToList();
             if (podProps.Any())
             {
-                sb.Append("            : ");
-                sb.AppendLine(string.Join(", ", podProps.Select(p => $"{p.Name}({MapCppDefaultValue(p.DataType, p.DefaultValue)})")));
-            }
-            sb.AppendLine("        {");
-            foreach (var prop in request.Properties.Where(p => p.DataType.ToLower() == "string"))
-            {
-                sb.AppendLine($"            memset({prop.Name}, 0, sizeof({prop.Name}));");
-                if (!string.IsNullOrEmpty(prop.DefaultValue) && prop.DefaultValue != "0")
+                for (int i = 0; i < podProps.Count; i++)
                 {
-                    var val = prop.DefaultValue.StartsWith("\"") ? prop.DefaultValue : $"\"{prop.DefaultValue}\"";
-                    sb.AppendLine($"            strncpy({prop.Name}, {val}, sizeof({prop.Name}) - 1);");
+                    var p = podProps[i];
+                    var separator = i < podProps.Count - 1 ? "," : "";
+                    var braces = (i == podProps.Count - 1 && !stringProps.Any()) ? "{}" : "";
+                    sb.AppendLine($"            {ToPascalCase(p.Name)}({MapCppDefaultValue(p.DataType, p.DefaultValue)}){separator}{braces}");
                 }
             }
-            sb.AppendLine("        }\n    };\n}");
+            
+            if (stringProps.Any())
+            {
+                sb.AppendLine("        {");
+                foreach (var prop in stringProps)
+                {
+                    var pascalName = ToPascalCase(prop.Name);
+                    sb.AppendLine($"            memset({pascalName}, 0, sizeof({pascalName}));");
+                    if (!string.IsNullOrEmpty(prop.DefaultValue) && prop.DefaultValue != "0")
+                    {
+                        var val = prop.DefaultValue.StartsWith("\"") ? prop.DefaultValue : $"\"{prop.DefaultValue}\"";
+                        sb.AppendLine($"            strncpy({pascalName}, {val}, sizeof({pascalName}) - 1);");
+                    }
+                }
+                sb.AppendLine("        }");
+            }
+            else if (!podProps.Any())
+            {
+                sb.AppendLine("        { }");
+            }
+
+            sb.AppendLine("    };\n}");
             return sb.ToString();
         }
 
@@ -238,13 +311,18 @@ namespace GbbExpender.Services
             sb.AppendLine($"        HT::{request.ObjectName}* {ptrType} = (HT::{request.ObjectName}*)pData;");
             foreach (var prop in request.Properties)
             {
+                var pascalName = ToPascalCase(prop.Name);
                 var macro = MapMonitorMacro(prop.DataType, isMsg);
-                sb.AppendLine($"        AddField{macro}(\"{prop.Name}\", {ptrType}->{prop.Name});");
+                sb.AppendLine($"        AddField{macro}(\"{pascalName}\", {ptrType}->{pascalName});");
             }
             sb.AppendLine("    }\n};");
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Generates the C# struct code with production-standard formatting.
+        /// Enforces PascalCase for property names.
+        /// </summary>
         private string GenerateCSharpStruct(GeneratorRequest request)
         {
             var isMsg = request.EntryType == "Message";
@@ -252,18 +330,27 @@ namespace GbbExpender.Services
             sb.AppendLine("using Globals;\n");
             sb.AppendLine($"namespace NavyGBBWrapper.{(isMsg ? "Messages" : "Descriptors")}\n{{");
             sb.AppendLine($"    public struct {request.ObjectName} : IBaseStruct\n    {{");
-            foreach (var prop in request.Properties) sb.AppendLine($"        public {MapCSharpType(prop.DataType, isMsg)} {prop.Name};");
+            // Property definitions
+            foreach (var prop in request.Properties) sb.AppendLine($"        public {MapCSharpType(prop.DataType, isMsg)} {ToPascalCase(prop.Name)};");
             
+            // SetDefault method with extra space before return for visibility
             sb.AppendLine("\n        public object SetDefault()\n        {");
             foreach (var prop in request.Properties)
             {
-                sb.AppendLine($"            {prop.Name} = {MapCSharpDefaultValue(prop.DataType, prop.DefaultValue)};");
+                sb.AppendLine($"            {ToPascalCase(prop.Name)} = {MapCSharpDefaultValue(prop.DataType, prop.DefaultValue)};");
             }
-            sb.AppendLine("            return this;\n        }");
+            sb.AppendLine("\n            return this;\n        }");
 
             sb.AppendLine($"\n        public static {request.ObjectName} Default() => ({request.ObjectName})default({request.ObjectName}).SetDefault();");
             sb.AppendLine("    }\n}");
             return sb.ToString();
+        }
+
+        private string ToPascalCase(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            if (input.Length == 1) return input.ToUpper();
+            return char.ToUpper(input[0]) + input.Substring(1);
         }
 
         private string MapCppType(string type) => type.ToLower() switch { "int" => "int", "uint" => "unsigned int", "double" => "double", "bool" => "bool", "byte" => "unsigned char", _ => "int" };

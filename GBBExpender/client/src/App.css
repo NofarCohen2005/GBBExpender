@@ -11,28 +11,28 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
   border-radius: 1.5rem;
-  padding: 2.5rem;
+  padding: 1.5rem 2rem;
   box-shadow: var(--shadow-luxury);
   background-image: var(--grad-surface);
-  height: 750px;
-  width: 850px;
+  height: 650px;
+  width: 700px;
   display: flex;
   flex-direction: column;
 }
 
 .generator-header {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
 }
 
 .generator-header h1 {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   background: var(--grad-main);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .form-group {
@@ -71,6 +71,7 @@
   border-radius: 0.75rem;
   background: transparent;
   color: var(--text-secondary);
+  font-size: 0.8rem;
 }
 
 .toggle-btn.active {
@@ -99,12 +100,10 @@
 
 .property-row {
   display: grid;
-  grid-template-columns: 1fr 120px 1fr auto;
-  gap: 0.75rem;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.75rem;
-  border-radius: 1rem;
+  grid-template-columns: 1fr 100px 1fr auto;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--border-color);
   transition: all 0.2s ease;
 }
@@ -150,9 +149,9 @@
 
 .generate-btn {
   width: 100%;
-  padding: 1.25rem;
-  margin-top: 2.5rem;
-  font-size: 1.1rem;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
