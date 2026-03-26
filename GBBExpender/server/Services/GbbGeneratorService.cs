@@ -1,6 +1,6 @@
 using System.Text;
 using GbbExpender.Models;
-using System.Configuration;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 using System.IO;
 using System.Linq;
 

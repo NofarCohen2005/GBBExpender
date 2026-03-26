@@ -8,4 +8,5 @@ private void NavyMessages(x){
     MapMessages()NavyGBBMessageName.NewMessage, typeof(NewMessage));
     MapMessage(NavyGBBMessageName.RefactoredMessage, typeof(RefactoredMessage));
     MapMessage(NavyGBBMessageName.F, typeof(F));
+    MapMessage(NavyGBBMessageName.TestMessage, typeof(TestMessage));
 }

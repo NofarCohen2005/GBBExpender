@@ -9,7 +9,8 @@
       "GbbServer/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.OpenApi": "9.0.0",
-          "Swashbuckle.AspNetCore": "6.6.2"
+          "Swashbuckle.AspNetCore": "6.6.2",
+          "System.Configuration.ConfigurationManager": "10.0.5"
         },
         "runtime": {
           "GbbServer.dll": {}
@@ -70,6 +71,25 @@
             "fileVersion": "6.6.2.401"
           }
         }
+      },
+      "System.Configuration.ConfigurationManager/10.0.5": {
+        "dependencies": {
+          "System.Security.Cryptography.ProtectedData": "10.0.5"
+        },
+        "runtime": {
+          "lib/net10.0/System.Configuration.ConfigurationManager.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.526.15411"
+          }
+        }
+      },
+      "System.Security.Cryptography.ProtectedData/10.0.5": {
+        "runtime": {
+          "lib/net10.0/System.Security.Cryptography.ProtectedData.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.526.15411"
+          }
+        }
       }
     }
   },
@@ -120,6 +140,20 @@
       "sha512": "sha512-mBBb+/8Hm2Q3Wygag+hu2jj69tZW5psuv0vMRXY07Wy+Rrj40vRP8ZTbKBhs91r45/HXT4aY4z0iSBYx1h6JvA==",
       "path": "swashbuckle.aspnetcore.swaggerui/6.6.2",
       "hashPath": "swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512"
+    },
+    "System.Configuration.ConfigurationManager/10.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9UHU7hldEOVgcOHUX7Pa+owDfpzhW+a1gshEvyknAoDA++G6FV+N1cPoUbtsXEO7GgPErGSg8MHrI/YqrLoiGA==",
+      "path": "system.configuration.configurationmanager/10.0.5",
+      "hashPath": "system.configuration.configurationmanager.10.0.5.nupkg.sha512"
+    },
+    "System.Security.Cryptography.ProtectedData/10.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kxR4O/8o32eNN3m4qbLe3UifYqeyEpallCyVAsLvL5ZFJVyT3JCb+9du/WHfC09VyJh1Q+p/Gd4+AwM7Rz4acg==",
+      "path": "system.security.cryptography.protecteddata/10.0.5",
+      "hashPath": "system.security.cryptography.protecteddata.10.0.5.nupkg.sha512"
     }
   }
 }

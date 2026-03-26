@@ -68,3 +68,7 @@
 /Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/obj/Debug/net10.0/GbbServer.genruntimeconfig.cache
 /Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/obj/Debug/net10.0/ref/GbbServer.dll
 /Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/bin/Debug/net10.0/appsettings.json
+/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/bin/Debug/net10.0/App.config
+/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/bin/Debug/net10.0/GbbServer.dll.config
+/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/bin/Debug/net10.0/System.Configuration.ConfigurationManager.dll
+/Users/nofar/Desktop/gbbexpender/GBBExpender/GBBExpender/server/bin/Debug/net10.0/System.Security.Cryptography.ProtectedData.dll

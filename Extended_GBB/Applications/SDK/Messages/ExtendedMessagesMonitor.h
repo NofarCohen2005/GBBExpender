@@ -1,3 +1,4 @@
+#include "Messages/TestMessage.h"
 #include "Messages/F.h"
 #include "Messages/RefactoredMessage.h"
 #include "Messages/NewMessage.h"
@@ -49,5 +50,17 @@ public:
         AddFieldInt("H", pMessage->H);
         AddFieldInt("H", pMessage->H);
         AddFieldInt("", pMessage->);
+    }
+};
+
+
+class MonitorTestMessage : public GBBMonitor::CMessageHandler {
+public:
+    MonitorTestMessage(int id) : GBBMonitor::CMessageHandler(TestMessage) {}
+
+    virtual void FillData(char* pData)
+    {
+        HT::TestMessage* pMessage = (HT::TestMessage*)pData;
+        AddFieldInt("TestProperty", pMessage->TestProperty);
     }
 };

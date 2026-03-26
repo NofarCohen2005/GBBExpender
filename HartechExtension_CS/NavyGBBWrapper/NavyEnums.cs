@@ -12,6 +12,8 @@ enum  ExtendedGBBmessageName{
     RefactoredMessage = INTTCMaxMessage + 1,
     ///<summary>Descriptor for F</summary>
     F = INTTCMaxMessage + 2,
+    ///<summary>Descriptor for TestMessage</summary>
+    TestMessage = INTTCMaxMessage + 3,
     ExtendedMaxDescriptors = INTTCMaxDescriptor + 1000
     NewMessage = INTTCMaxMessage + 1,
 }

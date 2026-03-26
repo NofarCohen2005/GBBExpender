@@ -12,6 +12,7 @@ enum  ExtendedGBBmessageName{
 
     RefactoredMessage = INTTCMaxMessage + 2,
     F = INTTCMaxMessage + 3,
+    TestMessage = INTTCMaxMessage + 4,
     ExtendedMaxMessages = INTTCMaxMessage + 1000
     NewMessage = INTTCMaxMessage + 1,
 };
