@@ -281,18 +281,28 @@ namespace GbbExpender.Services
             return value;
         }
 
-        private string MapCSharpDefaultValue(string dataType, string value)
+        private string MapCSharpDefaultValue(string dataType, string value, bool isMsg)
         {
             if (string.IsNullOrEmpty(value)) return "0";
             var lowerValue = value.ToLower();
+            
+            // Handle max/min keywords
             if (lowerValue == "max")
             {
-                return dataType.ToLower() switch { "int" => "int.MaxValue", "uint" => "uint.MaxValue", "double" => "double.MaxValue", "byte" => "byte.MaxValue", "bool" => "true", _ => "0" };
+                return dataType.ToLower() switch { "int" => "int.MaxValue", "uint" => "uint.MaxValue", "double" => "double.MaxValue", "byte" => "byte.MaxValue", "bool" => isMsg ? "1" : "true", _ => "0" };
             }
             if (lowerValue == "min")
             {
-                return dataType.ToLower() switch { "int" => "int.MinValue", "uint" => "0", "double" => "double.MinValue", "byte" => "0", "bool" => "false", _ => "0" };
+                return dataType.ToLower() switch { "int" => "int.MinValue", "uint" => "0", "double" => "double.MinValue", "byte" => "0", "bool" => isMsg ? "0" : "false", _ => "0" };
             }
+
+            // Handle boolean literals for byte types in messages
+            if (dataType.ToLower() == "bool" && isMsg)
+            {
+                if (lowerValue == "true") return "1";
+                if (lowerValue == "false") return "0";
+            }
+
             if (dataType.ToLower() == "uint" && value.Equals("UINT_MAX", System.StringComparison.OrdinalIgnoreCase)) return "uint.MaxValue";
             if (dataType.ToLower() == "string" && !value.StartsWith("\"")) return $"\"{value}\"";
             return value;
@@ -337,7 +347,7 @@ namespace GbbExpender.Services
             sb.AppendLine("\n        public object SetDefault()\n        {");
             foreach (var prop in request.Properties)
             {
-                sb.AppendLine($"            {ToPascalCase(prop.Name)} = {MapCSharpDefaultValue(prop.DataType, prop.DefaultValue)};");
+                sb.AppendLine($"            {ToPascalCase(prop.Name)} = {MapCSharpDefaultValue(prop.DataType, prop.DefaultValue, isMsg)};");
             }
             sb.AppendLine("\n            return this;\n        }");
 
