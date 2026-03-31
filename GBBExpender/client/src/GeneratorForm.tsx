@@ -6,7 +6,10 @@ import EntryTypeToggle from './components/EntryTypeToggle';
 import ObjectNameInput from './components/ObjectNameInput';
 import PropertiesSection from './components/PropertiesSection';
 import Modal from './components/Modal';
+import SettingsModal from './components/SettingsModal';
 import { useGenerator } from './hooks/useGenerator';
+import { useSettings } from './hooks/useSettings';
+import { useState } from 'react';
 
 /**
  * Main form component for GBB Code Generation.
@@ -21,9 +24,21 @@ const GeneratorForm: React.FC = () => {
     handleAddField, handleRemoveField, handleGenerate
   } = useGenerator();
 
+  const { settings, saveSettings } = useSettings();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <>
       <div className="luxury-card">
+        <div className="settings-trigger">
+          <button 
+            type="button" 
+            onClick={() => setIsSettingsOpen(true)}
+            title="Settings"
+          >
+            ⚙️
+          </button>
+        </div>
         <FormHeader />
 
         <EntryTypeToggle 
@@ -61,6 +76,13 @@ const GeneratorForm: React.FC = () => {
         title={modal.title}
         message={modal.message}
         subMessage={modal.redSubMessage}
+      />
+
+      <SettingsModal 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onSave={saveSettings}
       />
     </>
   );

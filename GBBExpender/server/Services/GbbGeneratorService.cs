@@ -8,7 +8,6 @@ namespace GbbExpender.Services
 {
     public class GbbGeneratorService
     {
-        private readonly GbbPaths _paths;
         private readonly CSharpGenerator _csGen = new();
         private readonly CppHeaderGenerator _cppHGen = new();
         private readonly CppMonitorGenerator _cppMGen = new();
@@ -19,39 +18,46 @@ namespace GbbExpender.Services
 
         public GbbGeneratorService()
         {
-            _paths = new GbbPaths {
-                WorkspaceRoot = ConfigurationManager.AppSettings["WorkspaceRoot"] ?? "",
-                CppDescriptorsPath = ConfigurationManager.AppSettings["CppDescriptorsPath"] ?? "",
-                CppMessagesPath = ConfigurationManager.AppSettings["CppMessagesPath"] ?? "",
-                CppIncPath = ConfigurationManager.AppSettings["CppIncPath"] ?? "",
-                CppDllPath = ConfigurationManager.AppSettings["CppDllPath"] ?? "",
-                CsDescriptorsPath = ConfigurationManager.AppSettings["CsDescriptorsPath"] ?? "",
-                CsMessagesPath = ConfigurationManager.AppSettings["CsMessagesPath"] ?? "",
-                CsEnumsPath = ConfigurationManager.AppSettings["CsEnumsPath"] ?? "",
-                CsAgentPath = ConfigurationManager.AppSettings["CsAgentPath"] ?? ""
+        }
+
+        private GbbPaths GetPaths()
+        {
+            var settings = Utils.ConfigHelper.GetAppSettings();
+            return new GbbPaths
+            {
+                WorkspaceRoot = settings.GetValueOrDefault("WorkspaceRoot", ""),
+                CppDescriptorsPath = settings.GetValueOrDefault("CppDescriptorsPath", ""),
+                CppMessagesPath = settings.GetValueOrDefault("CppMessagesPath", ""),
+                CppIncPath = settings.GetValueOrDefault("CppIncPath", ""),
+                CppDllPath = settings.GetValueOrDefault("CppDllPath", ""),
+                CsDescriptorsPath = settings.GetValueOrDefault("CsDescriptorsPath", ""),
+                CsMessagesPath = settings.GetValueOrDefault("CsMessagesPath", ""),
+                CsEnumsPath = settings.GetValueOrDefault("CsEnumsPath", ""),
+                CsAgentPath = settings.GetValueOrDefault("CsAgentPath", "")
             };
         }
 
         public void Generate(GeneratorRequest req)
         {
+            var paths = GetPaths();
             var isMsg = string.Equals(req.EntryType, "Message", System.StringComparison.OrdinalIgnoreCase);
             var cppH = _cppHGen.Generate(req);
             var cppM = _cppMGen.Generate(req);
             var csS = _csGen.Generate(req);
 
-            var root = _paths.WorkspaceRoot;
-            var cppSub = isMsg ? _paths.CppMessagesPath : _paths.CppDescriptorsPath;
-            var csSub = isMsg ? _paths.CsMessagesPath : _paths.CsDescriptorsPath;
+            var root = paths.WorkspaceRoot;
+            var cppSub = isMsg ? paths.CppMessagesPath : paths.CppDescriptorsPath;
+            var csSub = isMsg ? paths.CsMessagesPath : paths.CsDescriptorsPath;
 
             _file.SaveFile(Path.Combine(root, cppSub, $"{req.ObjectName}.h"), cppH);
             _file.SaveFile(Path.Combine(root, csSub, $"{req.ObjectName}.cs"), csS);
 
             _cppReg.UpdateMonitor(Path.Combine(root, cppSub, isMsg ? "ExtendedMessagesMonitor.h" : "ExtendedMonitor.h"), req.ObjectName, cppM, isMsg);
-            _enum.Update(Path.Combine(root, _paths.CppIncPath, "Extended_HT_GBB.h"), req.ObjectName, isMsg ? "ExtendedGBBmessageName" : "ExtendedGBBdescriptorName", isMsg ? "INTTCMaxMessage" : "INTTCMaxDescriptor");
-            _cppReg.UpdateCppRegistration(Path.Combine(root, _paths.CppDllPath, "ExtendedSizeDLL.cpp"), req.ObjectName, isMsg);
+            _enum.Update(Path.Combine(root, paths.CppIncPath, "Extended_HT_GBB.h"), req.ObjectName, isMsg ? "ExtendedGBBmessageName" : "ExtendedGBBdescriptorName", isMsg ? "INTTCMaxMessage" : "INTTCMaxDescriptor");
+            _cppReg.UpdateCppRegistration(Path.Combine(root, paths.CppDllPath, "ExtendedSizeDLL.cpp"), req.ObjectName, isMsg);
             
-            _enum.Update(Path.Combine(root, _paths.CsEnumsPath), req.ObjectName, isMsg ? "ExtendedGBBmessageName" : "ExtendedGBBdescriptorName", isMsg ? "INTTCMaxMessage" : "INTTCMaxDescriptor");
-            _csReg.UpdateAgent(Path.Combine(root, _paths.CsAgentPath), req.ObjectName, isMsg);
+            _enum.Update(Path.Combine(root, paths.CsEnumsPath), req.ObjectName, isMsg ? "ExtendedGBBmessageName" : "ExtendedGBBdescriptorName", isMsg ? "INTTCMaxMessage" : "INTTCMaxDescriptor");
+            _csReg.UpdateAgent(Path.Combine(root, paths.CsAgentPath), req.ObjectName, isMsg);
         }
     }
 }

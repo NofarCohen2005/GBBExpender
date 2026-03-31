@@ -1,0 +1,21 @@
+{
+  "name": "gbbexpender",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\" \"wait-on http://localhost:5173 && electron .\"",
+    "server": "cd server && dotnet run",
+    "client": "cd client && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "electron": "^41.1.0",
+    "electron-is-dev": "^3.0.1",
+    "wait-on": "^9.0.4"
+  }
+}
