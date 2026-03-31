@@ -4,6 +4,7 @@ export interface Property {
   name: string;
   dataType: string;
   defaultValue: string;
+  size?: number;
 }
 
 export interface GeneratorRequest {
@@ -12,4 +13,4 @@ export interface GeneratorRequest {
   properties: Property[];
 }
 
-export const DATA_TYPES = ['int', 'uint', 'double', 'bool', 'byte', 'string'];
+export const DATA_TYPES = ['int', 'uint', 'double', 'bool', 'short', 'string'];

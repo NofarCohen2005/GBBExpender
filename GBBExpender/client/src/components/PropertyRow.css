@@ -1,0 +1,36 @@
+.property-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.property-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.field-name { flex: 1.5; min-width: 0; }
+.field-type { width: 120px; flex-shrink: 0; }
+.field-size { width: 80px; flex-shrink: 0; }
+.field-default { flex: 2; min-width: 0; }
+
+.remove-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+  width: 32px;
+  height: 32px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.remove-btn:hover {
+  background: var(--error-color);
+  color: white;
+}

@@ -7,6 +7,7 @@ namespace GbbExpender.Models
         public string Name { get; set; } = string.Empty;
         public string DataType { get; set; } = "int";
         public string DefaultValue { get; set; } = "0";
+        public int? Size { get; set; }
     }
 
     public class GeneratorRequest
