@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GbbServer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db243d49866654bc8d7e5cff5aeb944a06bef792")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ddd2e648bebf1a35cbaa831db6ff707adfadbb1c")]
 [assembly: System.Reflection.AssemblyProductAttribute("GbbServer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GbbServer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

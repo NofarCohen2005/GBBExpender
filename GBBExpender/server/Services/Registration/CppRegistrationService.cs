@@ -19,7 +19,8 @@ namespace GbbExpender.Services.Registration
                 else lines.Insert(0, includeLine);
             }
 
-            if (!lines.Any(l => l.Contains($"class Monitor{objectName}"))) lines.Add(classCode);
+            var baseName = GbbExpender.Utils.StringUtils.GetBaseName(objectName, isMsg);
+            if (!lines.Any(l => l.Contains($"class Monitor{baseName}"))) lines.Add(classCode);
             File.WriteAllLines(path, lines);
         }
 
@@ -29,7 +30,7 @@ namespace GbbExpender.Services.Registration
             var lines = File.ReadAllLines(path).ToList();
             var includeLine = $"#include \"{(isMsg ? "Messages" : "Descriptors")}/{objectName}.h\"";
             
-            if (!lines.Any(l => l.Contains(includeLine)))
+            if (!isMsg && !lines.Any(l => l.Contains(includeLine)))
             {
                 var prefix = $"#include \"{(isMsg ? "Messages" : "Descriptors")}/";
                 var lastIndex = lines.FindLastIndex(l => l.Trim().StartsWith(prefix));
@@ -37,10 +38,11 @@ namespace GbbExpender.Services.Registration
                 else lines.Insert(lines.FindLastIndex(l => l.StartsWith("#include")) + 1, includeLine);
             }
 
+            var baseName = GbbExpender.Utils.StringUtils.GetBaseName(objectName, isMsg);
             if (!lines.Any(l => l.Contains(objectName) && (l.Contains("ADD_DESC1") || l.Contains("ADD_MESSAGE"))))
             {
                 var prefix = isMsg ? "ADD_MESSAGE" : "ADD_DESC1";
-                var regCode = isMsg ? $"    ADD_MESSAGE(\"{objectName}\", {objectName}, {objectName});" : $"    ADD_DESC1({objectName});";
+                var regCode = isMsg ? $"    ADD_MESSAGE(\"{objectName}\", {baseName}, {baseName});" : $"    ADD_DESC1({objectName});";
                 var lastMacroIdx = lines.FindLastIndex(l => l.Trim().StartsWith(prefix));
                 if (lastMacroIdx != -1) lines.Insert(lastMacroIdx + 1, regCode);
                 else lines.Insert(lines.FindLastIndex(l => l.Trim() == "}") , regCode);

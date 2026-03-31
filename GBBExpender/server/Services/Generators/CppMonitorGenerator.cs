@@ -13,11 +13,12 @@ namespace GbbExpender.Services.Generators
             var ptrType = isMsg ? "pMessage" : "pDesc";
             var sb = new StringBuilder();
             
-            sb.AppendLine($"\nclass Monitor{request.ObjectName} : public GBBMonitor::{baseHandler} {{");
+            var baseName = StringUtils.GetBaseName(request.ObjectName, isMsg);
+            sb.AppendLine($"\nclass Monitor{baseName} : public GBBMonitor::{baseHandler} {{");
             sb.AppendLine("public:");
-            sb.AppendLine($"    Monitor{request.ObjectName}(int id) : GBBMonitor::{baseHandler}({request.ObjectName}) {{}}");
+            sb.AppendLine($"    Monitor{baseName}(int id) : GBBMonitor::{baseHandler}({request.ObjectName}) {{}}");
             sb.AppendLine("\n    virtual void FillData(char* pData)\n    {");
-            sb.AppendLine($"        HT::{request.ObjectName}* {ptrType} = (HT::{request.ObjectName}*)pData;");
+            sb.AppendLine($"        HT::{baseName}* {ptrType} = (HT::{baseName}*)pData;");
             
             foreach (var prop in request.Properties)
             {

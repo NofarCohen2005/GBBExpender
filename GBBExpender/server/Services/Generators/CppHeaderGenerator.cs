@@ -16,7 +16,8 @@ namespace GbbExpender.Services.Generators
             else AppendDescriptorIncludes(sb);
             
             sb.AppendLine("\nnamespace HT {");
-            sb.AppendLine($"    struct {request.ObjectName} {{");
+            var baseName = StringUtils.GetBaseName(request.ObjectName, isMsg);
+            sb.AppendLine($"    struct {baseName} {{");
             foreach (var prop in request.Properties)
             {
                 var pascalName = StringUtils.ToPascalCase(prop.Name);
@@ -25,7 +26,7 @@ namespace GbbExpender.Services.Generators
                 sb.AppendLine($"        {type} {pascalName}{suffix};");
             }
             
-            sb.AppendLine($"\n        {request.ObjectName}():");
+            sb.AppendLine($"\n        {baseName}():");
             sb.AppendLine("        {");
             foreach (var p in request.Properties)
             {
