@@ -57,7 +57,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings
         <div className="settings-header">
           <div className="header-info">
             <h2>Project Configuration</h2>
-            <p>Manage your GBB workspace and file paths</p>
+            <p>This is the path to the GBB workspace (ssg-sdk folder)</p>
           </div>
           <button className="close-x" onClick={onClose}>&times;</button>
         </div>
