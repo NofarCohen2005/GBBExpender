@@ -20,10 +20,10 @@ function createWindow() {
 
   // Start the .NET Server
   const serverPath = path.join(__dirname, 'server');
-  serverProcess = spawn('dotnet', ['run'], { cwd: serverPath });
-
-  serverProcess.stdout.on('data', (data) => console.log(`Server: ${data}`));
-  serverProcess.stderr.on('data', (data) => console.error(`Server Error: ${data}`));
+  serverProcess = spawn('dotnet', ['run'], { 
+    cwd: serverPath,
+    stdio: 'inherit' // This allows the server logs to go directly to your terminal
+  });
 
   // Give the server time to start or use wait-on in the script
   const startUrl = isDev ? 'http://localhost:5173' : `file://${path.join(__dirname, 'client/dist/index.html')}`;

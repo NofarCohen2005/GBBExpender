@@ -5,16 +5,27 @@ export const useSettings = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSettings = async () => {
+  const fetchSettings = async (retryCount = 0) => {
+    const maxRetries = 10;
+    const delay = 2000;
+
     setLoading(true);
     try {
       const resp = await fetch('http://localhost:5050/api/config');
+      if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+      
       const data = await resp.json();
       setSettings(data);
+      setError(null);
     } catch (err) {
-      setError('Failed to load settings');
+      if (retryCount < maxRetries) {
+        console.log(`Connection failed. Retrying in ${delay/1000}s... (Attempt ${retryCount + 1}/${maxRetries})`);
+        setTimeout(() => fetchSettings(retryCount + 1), delay);
+      } else {
+        setError('Failed to load settings after multiple attempts');
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) setLoading(false);
     }
   };
 
